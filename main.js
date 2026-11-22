@@ -6,7 +6,7 @@
 'use strict';
 
 (function () {
-  const WHATSAPP_PHONE = '584120000000';
+  const WHATSAPP_PHONE = '584129008333';
 
   // Mobile Navigation Toggle
   const navToggle = document.getElementById('navToggle');

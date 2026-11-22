@@ -163,6 +163,16 @@ ul {
   gap: 0.5rem;
 }
 
+.top-bar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.top-bar-sep {
+  color: var(--color-gray-600);
+}
+
 .top-bar-link {
   color: #60a5fa;
   font-weight: 700;
