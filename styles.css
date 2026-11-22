@@ -246,14 +246,14 @@ ul {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-sky-blue) 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #3BA7FF 0%, #60c4ff 100%);
   color: #000000;
   font-weight: 700;
   box-shadow: 0 4px 20px var(--color-sky-blue-glow);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--color-sky-blue-hover) 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #60c4ff 0%, #90d5ff 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 25px rgba(59, 167, 255, 0.5);
 }
@@ -288,14 +288,14 @@ ul {
 }
 
 .btn-whatsapp {
-  background: linear-gradient(135deg, var(--color-whatsapp) 0%, #128C7E 100%);
+  background: linear-gradient(135deg, #25D366 0%, #20ba5a 100%);
   color: #000000;
   font-weight: 700;
   box-shadow: 0 4px 20px var(--color-whatsapp-glow);
 }
 
 .btn-whatsapp:hover {
-  background: linear-gradient(135deg, var(--color-whatsapp-hover) 0%, #15a850 100%);
+  background: linear-gradient(135deg, #32e073 0%, #25D366 100%);
   transform: translateY(-2px);
   box-shadow: 0 6px 25px rgba(37, 211, 102, 0.5);
 }
@@ -738,6 +738,10 @@ ul {
   .hero-metrics {
     gap: 1.25rem;
   }
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* Hero Showcase Card */
@@ -920,6 +924,18 @@ ul {
   box-shadow: 0 0 15px var(--color-purple-glow);
 }
 
+@media (max-width: 480px) {
+  .filter-group {
+    border-radius: var(--radius-md);
+    width: 100%;
+  }
+  .filter-btn {
+    flex: 1 1 calc(50% - 0.5rem);
+    text-align: center;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -1065,6 +1081,10 @@ ul {
   .customizer-wrapper {
     grid-template-columns: 1fr;
   }
+  .customizer-summary {
+    position: static;
+    top: auto;
+  }
 }
 
 .customizer-form {
@@ -1080,6 +1100,15 @@ ul {
 @media (max-width: 600px) {
   .customizer-form {
     padding: 1.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .customizer-form {
+    padding: 1.15rem;
+  }
+  .customizer-summary {
+    padding: 1.25rem;
   }
 }
 
@@ -1821,6 +1850,13 @@ ul {
   justify-content: center;
   gap: 1.25rem;
   flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .cta-banner-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* --------------------------------------------------------------------------

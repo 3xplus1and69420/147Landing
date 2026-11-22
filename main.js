@@ -189,16 +189,36 @@
     if (elements.copySummaryBtn && elements.copyBtnText) {
       elements.copySummaryBtn.addEventListener('click', function () {
         const message = updateSummary();
+        function showCopySuccess() {
+          const originalText = elements.copyBtnText.textContent;
+          elements.copyBtnText.textContent = '✓ ¡Copiado al portapapeles!';
+          setTimeout(function () {
+            elements.copyBtnText.textContent = originalText;
+          }, 2500);
+        }
+
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(message).then(function () {
-            const originalText = elements.copyBtnText.textContent;
-            elements.copyBtnText.textContent = '✓ ¡Copiado al portapapeles!';
-            setTimeout(function () {
-              elements.copyBtnText.textContent = originalText;
-            }, 2500);
-          }).catch(function () {
+            showCopySuccess();
+          }).catch(function (err) {
+            console.error('Clipboard writeText failed:', err);
             elements.copyBtnText.textContent = 'Error al copiar';
           });
+        } else {
+          try {
+            const textarea = document.createElement('textarea');
+            textarea.value = message;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showCopySuccess();
+          } catch (err) {
+            console.error('Fallback execCommand failed:', err);
+            elements.copyBtnText.textContent = 'Error al copiar';
+          }
         }
       });
     }

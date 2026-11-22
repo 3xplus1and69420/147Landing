@@ -10,6 +10,9 @@
   <meta name="author" content="unocuatrosiete">
   <meta name="theme-color" content="#000000">
 
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://unocuatrosiete.com/">
+
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://unocuatrosiete.com/">
@@ -34,37 +37,88 @@
 
   <link rel="stylesheet" href="styles.css">
 
-  <!-- Structured Data JSON-LD -->
+  <!-- Structured Data JSON-LD (LocalBusiness + FAQPage Schema) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "unocuatrosiete",
-    "image": "assets/optimized/logo-147.png",
-    "description": "Taller de confección y personalización prémium de ropa deportiva Dry-Fit, chaquetas cortavientos y vasos térmicos.",
-    "telephone": "+584120000000",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Cabudare y Barquisimeto",
-      "addressRegion": "Lara",
-      "addressCountry": "VE"
-    },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": 10.0384,
-      "longitude": -69.2562
-    },
-    "url": "https://unocuatrosiete.com",
-    "sameAs": [
-      "https://www.instagram.com/unocuatrosietee"
-    ],
-    "priceRange": "$$",
-    "openingHoursSpecification": [
+    "@graph": [
       {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        "opens": "08:30",
-        "closes": "18:00"
+        "@type": "LocalBusiness",
+        "@id": "https://unocuatrosiete.com/#business",
+        "name": "unocuatrosiete",
+        "image": "assets/optimized/logo-147.png",
+        "description": "Taller de confección y personalización prémium de ropa deportiva Dry-Fit, chaquetas cortavientos y vasos térmicos.",
+        "telephone": "+584120000000",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Cabudare y Barquisimeto",
+          "addressRegion": "Lara",
+          "addressCountry": "VE"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 10.0384,
+          "longitude": -69.2562
+        },
+        "url": "https://unocuatrosiete.com",
+        "sameAs": [
+          "https://www.instagram.com/unocuatrosietee"
+        ],
+        "priceRange": "$$",
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "opens": "08:30",
+            "closes": "18:00"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://unocuatrosiete.com/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "¿Cuál es la cantidad mínima para hacer un pedido?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "En franelas sublimadas y vasos térmicos trabajamos desde 1 sola unidad para proyectos personales o muestras. Para chaquetas cortaviento y gorras estructuradas recomendamos pedidos a partir de media docena (6 piezas) para brindarte la mejor tarifa por prenda."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Cómo debo enviar mi logotipo o diseño?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Lo ideal es en formato vectorial (Illustrator .ai, .pdf o .eps) o en formato .png con fondo transparente a 300 DPI. Si no lo tienes en alta resolución, nuestro equipo de diseño puede ayudarte a vectorizarlo y adaptarlo a la prenda."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Cuánto tiempo toma la producción?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Para pedidos pequeños (1 a 12 unidades) el tiempo estándar de taller es de 3 a 5 días hábiles tras la confirmación del mockup y abono. Para volúmenes mayores a 50 piezas coordinamos un cronograma de entregas parciales o completas según tus necesidades."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Hacen envíos a otras ciudades de Venezuela?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "¡Sí! Tenemos entregas personales en Barquisimeto y Cabudare (estado Lara), y realizamos envíos nacionales cobro en destino a través de MRW, Zoom, Tealca o Domesa a cualquier rincón del país con número de guía inmediato."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "¿Cuáles son los métodos de pago aceptados?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Aceptamos Pago Móvil, transferencias bancarias en bolívares (tasa oficial BCV), transferencias en divisas en efectivo, Binance USDT y Zelle. Generalmente se inicia la confección con el 50% de abono y el 50% restante contra entrega o previo al despacho nacional."
+            }
+          }
+        ]
       }
     ]
   }
