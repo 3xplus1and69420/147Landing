@@ -190,9 +190,30 @@
   const calcUnitPrice = document.getElementById('calcUnitPrice');
   const calcTotalPrice = document.getElementById('calcTotalPrice');
   const calcDiscountTag = document.getElementById('calcDiscountTag');
+  const calcSavingsBox = document.getElementById('calcSavingsBox');
+  const calcSavingsAmount = document.getElementById('calcSavingsAmount');
   const quoteForm = document.getElementById('quoteForm');
 
-  // Render pricing table rows
+  // Synchronize product select options with Google Sheets live data
+  function syncProductOptions(data) {
+    if (!prodInput || !data || data.length === 0) return;
+    const currentVal = prodInput.value;
+    prodInput.innerHTML = '';
+    data.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item.name;
+      opt.textContent = item.name;
+      if (item.name === currentVal) {
+        opt.selected = true;
+      }
+      prodInput.appendChild(opt);
+    });
+    if (!prodInput.value && data.length > 0) {
+      prodInput.value = data[0].name;
+    }
+  }
+
+  // Render pricing table rows (if table element is present)
   function renderPricingTable(data) {
     if (!pricingTableBody) return;
     pricingTableBody.innerHTML = '';
@@ -233,7 +254,7 @@
     });
   }
 
-  // Calculate unit price and order total based on quantity tier
+  // Calculate unit price, order total, and wholesale savings based on quantity tier
   function recalculateQuote() {
     if (!prodInput || !qtyInput) return;
 
@@ -245,16 +266,22 @@
 
     let unitPrice = product.price1;
     let discountMsg = 'Precio unitario estándar (1 a 5 piezas)';
+    let isDiscounted = false;
 
     if (qty >= 12) {
       unitPrice = product.price12;
       discountMsg = '🔥 Precio mayorista aplicado por docena (+12)';
+      isDiscounted = true;
     } else if (qty >= 6) {
       unitPrice = product.price6;
       discountMsg = '✨ Descuento especial aplicado por media docena (6+)';
+      isDiscounted = true;
     }
 
     const total = unitPrice * qty;
+    const standardTotal = product.price1 * qty;
+    const savings = standardTotal - total;
+    const savingsPct = product.price1 > 0 ? Math.round(((product.price1 - unitPrice) / product.price1) * 100) : 0;
 
     if (calcUnitPrice) {
       calcUnitPrice.textContent = `$${unitPrice.toFixed(2)}`;
@@ -264,6 +291,23 @@
     }
     if (calcDiscountTag) {
       calcDiscountTag.textContent = discountMsg;
+      if (isDiscounted) {
+        calcDiscountTag.classList.remove('standard');
+        calcDiscountTag.classList.add('active');
+      } else {
+        calcDiscountTag.classList.remove('active');
+        calcDiscountTag.classList.add('standard');
+      }
+    }
+
+    if (calcSavingsAmount && calcSavingsBox) {
+      if (savings > 0) {
+        calcSavingsAmount.textContent = `¡Ahorras $${savings.toFixed(2)} (-${savingsPct}%)!`;
+        calcSavingsBox.classList.remove('no-savings');
+      } else {
+        calcSavingsAmount.textContent = 'Disponible desde 6 uds';
+        calcSavingsBox.classList.add('no-savings');
+      }
     }
   }
 
@@ -320,6 +364,7 @@
 
       if (parsedItems.length > 0) {
         currentPricingData = parsedItems;
+        syncProductOptions(currentPricingData);
         if (sheetStatusLabel) {
           sheetStatusLabel.textContent = 'Precios sincronizados en vivo con Google Sheets';
           sheetStatusLabel.style.color = '#059669';
@@ -331,6 +376,7 @@
     } catch (err) {
       console.warn('Google Sheets live sync:', err.message, '- Usando lista oficial vigente del taller.');
       currentPricingData = FALLBACK_PRICES;
+      syncProductOptions(currentPricingData);
       if (sheetStatusLabel) {
         sheetStatusLabel.textContent = 'Precios oficiales vigentes del taller (Google Sheets en modo lectura)';
         sheetStatusLabel.style.color = '#1f2937';
@@ -360,7 +406,7 @@
     refreshPricesBtn.addEventListener('click', fetchGoogleSheetData);
   }
 
-  // Quote form submission with exact calculated itemized breakdown
+  // Quote form submission with exact calculated itemized breakdown and wholesale savings
   if (quoteForm) {
     quoteForm.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -371,13 +417,21 @@
       const notes = document.getElementById('notesInput') ? document.getElementById('notesInput').value.trim() : 'Sin notas adicionales';
       const unit = calcUnitPrice ? calcUnitPrice.textContent : '$10.00';
       const total = calcTotalPrice ? calcTotalPrice.textContent : '$60.00';
+      const savingsTxt = (calcSavingsAmount && calcSavingsBox && !calcSavingsBox.classList.contains('no-savings'))
+        ? calcSavingsAmount.textContent
+        : '';
 
-      const message = `¡Hola unocuatrosiete! Quisiera cotizar un pedido a partir del cotizador web:%0A%0A` +
+      let message = `¡Hola unocuatrosiete! Quisiera cotizar un pedido a partir del cotizador web:%0A%0A` +
         `• *Prenda/Producto:* ${encodeURIComponent(prod)}%0A` +
         `• *Cantidad:* ${encodeURIComponent(qty)} unidad(es)%0A` +
         `• *Precio Unitario Estimado:* ${encodeURIComponent(unit)}%0A` +
-        `• *Total Estimado del Pedido:* ${encodeURIComponent(total)}%0A` +
-        `• *Ubicación de Entrega:* ${encodeURIComponent(city)}%0A` +
+        `• *Total Estimado del Pedido:* ${encodeURIComponent(total)}%0A`;
+
+      if (savingsTxt) {
+        message += `• *Ahorro Mayorista:* ${encodeURIComponent(savingsTxt)}%0A`;
+      }
+
+      message += `• *Ubicación de Entrega:* ${encodeURIComponent(city)}%0A` +
         `• *Detalle del diseño:* ${encodeURIComponent(notes)}%0A%0A` +
         `¿Me podrían confirmar disponibilidad y tiempos de entrega? ¡Gracias!`;
 

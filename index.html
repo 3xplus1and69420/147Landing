@@ -461,53 +461,16 @@
       </div>
     </section>
 
-    <!-- Cotizador Express & Real-Time Google Sheet Price Table -->
+    <!-- Cotizador Express & Real-Time Price Calculator -->
     <section class="section customizer-section" id="cotizador">
       <div class="container">
         <div class="customizer-box">
           <div class="customizer-header">
-            <span class="section-kicker">TABLA EN TIEMPO REAL &bull; GOOGLE SHEETS</span>
-            <h2 class="section-heading">COTIZADOR RÁPIDO &bull; LISTA DE PRECIOS</h2>
+            <span class="section-kicker">ATENCIÓN DIRECTA</span>
+            <h2 class="section-heading">COTIZADOR RÁPIDO WHATSAPP</h2>
             <p class="section-intro">
-              Precios sincronizados en tiempo real desde la hoja de cálculo oficial del taller. Selecciona tu producto o haz clic en cualquier fila para calcular el total exacto.
+              Selecciona tus preferencias para ver el precio unitario, el total estimado y tu ahorro por mayor en tiempo real.
             </p>
-          </div>
-
-          <!-- Real-Time Pricing Table -->
-          <div class="pricing-table-card">
-            <div class="pricing-table-toolbar">
-              <div class="pricing-live-pill">
-                <span class="live-pulse"></span>
-                <span id="sheetStatusLabel">Conectando con Google Sheets...</span>
-              </div>
-              <div class="pricing-toolbar-right">
-                <button type="button" id="refreshPricesBtn" class="refresh-pill-btn" aria-label="Actualizar precios">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                  <span>Actualizar lista</span>
-                </button>
-              </div>
-            </div>
-
-            <div class="pricing-table-scroll">
-              <table class="pricing-table" id="pricingTable">
-                <thead>
-                  <tr>
-                    <th>PRENDA O PRODUCTO</th>
-                    <th>ESPECIFICACIÓN</th>
-                    <th>1 - 5 UDS</th>
-                    <th>6 - 11 UDS</th>
-                    <th>DOCENA (+12)</th>
-                  </tr>
-                </thead>
-                <tbody id="pricingTableBody">
-                  <!-- Rendered dynamically from Google Sheets or fallback dataset -->
-                </tbody>
-              </table>
-            </div>
-
-            <div class="pricing-table-note">
-              <span>* Los precios se actualizan automáticamente al modificar la hoja de Google Sheets. Toca una fila para seleccionarla.</span>
-            </div>
           </div>
 
           <!-- Interactive Calculator & WhatsApp Quote Form -->
@@ -555,16 +518,21 @@
               </div>
             </div>
 
-            <!-- Dynamic Live Calculation Box -->
+            <!-- Dynamic Live Calculation Box with Wholesale Savings -->
             <div class="quote-calculator-card" id="quoteCalcCard">
               <div class="calc-metric">
-                <span class="calc-metric-label">PRECIO UNITARIO ESTIMADO</span>
-                <span class="calc-metric-num" id="calcUnitPrice">$10.00</span>
+                <span class="calc-metric-label">PRECIO UNITARIO</span>
+                <span class="calc-metric-num" id="calcUnitPrice">$24.00</span>
               </div>
               <div class="calc-divider"></div>
               <div class="calc-metric calc-metric-total">
-                <span class="calc-metric-label">TOTAL ESTIMADO DEL PEDIDO</span>
-                <span class="calc-metric-num total-num" id="calcTotalPrice">$60.00</span>
+                <span class="calc-metric-label">TOTAL ESTIMADO</span>
+                <span class="calc-metric-num total-num" id="calcTotalPrice">$144.00</span>
+              </div>
+              <div class="calc-divider"></div>
+              <div class="calc-metric calc-metric-savings" id="calcSavingsBox">
+                <span class="calc-metric-label">AHORRO POR MAYOR</span>
+                <span class="calc-metric-num savings-num" id="calcSavingsAmount">¡Ahorras $24.00!</span>
               </div>
               <div class="calc-tag" id="calcDiscountTag">Descuento aplicado por escala</div>
             </div>

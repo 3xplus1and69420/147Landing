@@ -1273,6 +1273,18 @@ ul {
   line-height: 1;
 }
 
+.calc-metric-savings .savings-num {
+  font-size: 1.35rem;
+  color: #059669;
+  line-height: 1;
+}
+
+.calc-metric-savings.no-savings .savings-num {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-gray-400);
+}
+
 .calc-divider {
   width: 1px;
   height: 40px;
@@ -1295,8 +1307,21 @@ ul {
   background: #ecfdf5;
   color: #065f46;
   border: 1px solid #a7f3d0;
-  padding: 0.35rem 0.75rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.calc-tag.standard {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+  border-color: var(--color-gray-300);
+}
+
+.calc-tag.active {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #a7f3d0;
 }
 
 .quote-action-wrap {
