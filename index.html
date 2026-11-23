@@ -461,18 +461,56 @@
       </div>
     </section>
 
-    <!-- Cotizador Express WhatsApp (Direct, Simple & Functional) -->
+    <!-- Cotizador Express & Real-Time Google Sheet Price Table -->
     <section class="section customizer-section" id="cotizador">
       <div class="container">
         <div class="customizer-box">
           <div class="customizer-header">
-            <span class="section-kicker">ATENCIÓN DIRECTA</span>
-            <h2 class="section-heading">COTIZADOR RÁPIDO WHATSAPP</h2>
+            <span class="section-kicker">TABLA EN TIEMPO REAL &bull; GOOGLE SHEETS</span>
+            <h2 class="section-heading">COTIZADOR RÁPIDO &bull; LISTA DE PRECIOS</h2>
             <p class="section-intro">
-              Selecciona tus preferencias y abre directamente el chat de WhatsApp con los datos listos para calcularte precio y tiempos de entrega.
+              Precios sincronizados en tiempo real desde la hoja de cálculo oficial del taller. Selecciona tu producto o haz clic en cualquier fila para calcular el total exacto.
             </p>
           </div>
 
+          <!-- Real-Time Pricing Table -->
+          <div class="pricing-table-card">
+            <div class="pricing-table-toolbar">
+              <div class="pricing-live-pill">
+                <span class="live-pulse"></span>
+                <span id="sheetStatusLabel">Conectando con Google Sheets...</span>
+              </div>
+              <div class="pricing-toolbar-right">
+                <button type="button" id="refreshPricesBtn" class="refresh-pill-btn" aria-label="Actualizar precios">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  <span>Actualizar lista</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="pricing-table-scroll">
+              <table class="pricing-table" id="pricingTable">
+                <thead>
+                  <tr>
+                    <th>PRENDA O PRODUCTO</th>
+                    <th>ESPECIFICACIÓN</th>
+                    <th>1 - 5 UDS</th>
+                    <th>6 - 11 UDS</th>
+                    <th>DOCENA (+12)</th>
+                  </tr>
+                </thead>
+                <tbody id="pricingTableBody">
+                  <!-- Rendered dynamically from Google Sheets or fallback dataset -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pricing-table-note">
+              <span>* Los precios se actualizan automáticamente al modificar la hoja de Google Sheets. Toca una fila para seleccionarla.</span>
+            </div>
+          </div>
+
+          <!-- Interactive Calculator & WhatsApp Quote Form -->
           <form id="quoteForm" class="quote-form">
             <div class="form-row">
               <div class="form-field">
@@ -482,7 +520,7 @@
                   <option value="Chaquetas Cortaviento Impermeables">Chaquetas Cortaviento Impermeables</option>
                   <option value="Vaso Térmico 20 oz Acero Inoxidable">Vaso Térmico 20 oz Acero Inoxidable</option>
                   <option value="Vaso Vinero Térmico 12 oz">Vaso Vinero Térmico 12 oz</option>
-                  <option value="Gorras & Accesorios">Gorras & Accesorios Personalizados</option>
+                  <option value="Gorras & Accesorios Personalizados">Gorras & Accesorios Personalizados</option>
                   <option value="Dotación Corporativa Completa">Dotación Corporativa Completa</option>
                 </select>
               </div>
@@ -490,10 +528,13 @@
               <div class="form-field">
                 <label for="qtyInput" class="form-label">CANTIDAD ESTIMADA</label>
                 <select id="qtyInput" class="form-select">
-                  <option value="1 a 5 piezas (Muestra / Personal)">1 a 5 piezas (Muestra / Personal)</option>
-                  <option value="6 piezas (Media docena)">6 piezas (Media docena)</option>
-                  <option value="12 piezas (Docena completa)">12 piezas (Docena completa)</option>
-                  <option value="+25 piezas (Dotación mayorista)">+25 piezas (Dotación mayorista)</option>
+                  <option value="1">1 unidad (Muestra personal)</option>
+                  <option value="3">3 unidades</option>
+                  <option value="6" selected>6 unidades (Media docena)</option>
+                  <option value="12">12 unidades (1 docena - Precio Mayor)</option>
+                  <option value="24">24 unidades (2 docenas)</option>
+                  <option value="50">50 unidades (Dotación institucional)</option>
+                  <option value="100">100+ unidades (Volumen corporativo)</option>
                 </select>
               </div>
             </div>
@@ -502,7 +543,7 @@
               <div class="form-field">
                 <label for="cityInput" class="form-label">UBICACIÓN DE ENTREGA</label>
                 <select id="cityInput" class="form-select">
-                  <option value="Cabudare, Lara">Cabudare, Lara (Retiro / Delivery)</option>
+                  <option value="Cabudare, Lara">Cabudare, Lara (Retiro en taller / Delivery)</option>
                   <option value="Barquisimeto, Lara">Barquisimeto, Lara (Retiro / Delivery)</option>
                   <option value="Nacional (Envío MRW / Tealca / Zoom)">Nacional (Envío MRW / Tealca / Zoom)</option>
                 </select>
@@ -512,6 +553,20 @@
                 <label for="notesInput" class="form-label">IDEA, LOGO O DETALLE DEL PEDIDO</label>
                 <input type="text" id="notesInput" class="form-input" placeholder="Ej: Logo en pecho y espalda, color azul y negro" value="Logo de mi marca en pecho y espalda">
               </div>
+            </div>
+
+            <!-- Dynamic Live Calculation Box -->
+            <div class="quote-calculator-card" id="quoteCalcCard">
+              <div class="calc-metric">
+                <span class="calc-metric-label">PRECIO UNITARIO ESTIMADO</span>
+                <span class="calc-metric-num" id="calcUnitPrice">$10.00</span>
+              </div>
+              <div class="calc-divider"></div>
+              <div class="calc-metric calc-metric-total">
+                <span class="calc-metric-label">TOTAL ESTIMADO DEL PEDIDO</span>
+                <span class="calc-metric-num total-num" id="calcTotalPrice">$60.00</span>
+              </div>
+              <div class="calc-tag" id="calcDiscountTag">Descuento aplicado por escala</div>
             </div>
 
             <div class="quote-action-wrap">

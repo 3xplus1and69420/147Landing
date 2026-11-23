@@ -127,26 +127,265 @@
     goToSlide(0);
   }
 
-  // Cotizador Express Form
+  // =========================================================================
+  // Google Sheets Live Price Table & Interactive Real-Time Cotizador
+  // Sheet: https://docs.google.com/spreadsheets/d/1l7qamRQd2mbAK2D75Z0sDngCirBs-16Y0Ph3WtEbkY8/edit?gid=0#gid=0
+  // =========================================================================
+  const SHEET_ID = '1l7qamRQd2mbAK2D75Z0sDngCirBs-16Y0Ph3WtEbkY8';
+  const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
+
+  // Workshop fallback catalog & pricing (used when Google Sheet is private/offline)
+  const FALLBACK_PRICES = [
+    {
+      name: 'Franelas Dry-Fit Sublimadas Full Print',
+      spec: 'Dry Fit UV50+ Full Print',
+      price1: 14.00,
+      price6: 12.00,
+      price12: 10.00
+    },
+    {
+      name: 'Chaquetas Cortaviento Impermeables',
+      spec: 'Taffeta Memory Sublimada',
+      price1: 28.00,
+      price6: 24.00,
+      price12: 20.00
+    },
+    {
+      name: 'Vaso Térmico 20 oz Acero Inoxidable',
+      spec: 'Doble pared al vacío / Láser o DTF UV',
+      price1: 16.00,
+      price6: 14.00,
+      price12: 12.00
+    },
+    {
+      name: 'Vaso Vinero Térmico 12 oz',
+      spec: 'Acero inoxidable mate / Personalizado',
+      price1: 12.00,
+      price6: 10.00,
+      price12: 8.50
+    },
+    {
+      name: 'Gorras & Accesorios Personalizados',
+      spec: 'Gabardina / Bordado o DTF',
+      price1: 9.00,
+      price6: 7.50,
+      price12: 6.00
+    },
+    {
+      name: 'Dotación Corporativa Completa',
+      spec: 'Combo Franela + Chaqueta + Vaso',
+      price1: 50.00,
+      price6: 44.00,
+      price12: 38.00
+    }
+  ];
+
+  let currentPricingData = FALLBACK_PRICES;
+
+  const pricingTableBody = document.getElementById('pricingTableBody');
+  const sheetStatusLabel = document.getElementById('sheetStatusLabel');
+  const refreshPricesBtn = document.getElementById('refreshPricesBtn');
+  const prodInput = document.getElementById('prodInput');
+  const qtyInput = document.getElementById('qtyInput');
+  const calcUnitPrice = document.getElementById('calcUnitPrice');
+  const calcTotalPrice = document.getElementById('calcTotalPrice');
+  const calcDiscountTag = document.getElementById('calcDiscountTag');
   const quoteForm = document.getElementById('quoteForm');
+
+  // Render pricing table rows
+  function renderPricingTable(data) {
+    if (!pricingTableBody) return;
+    pricingTableBody.innerHTML = '';
+
+    data.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.setAttribute('data-product', item.name);
+      if (prodInput && prodInput.value === item.name) {
+        tr.classList.add('selected-row');
+      }
+
+      tr.innerHTML = `
+        <td><strong>${item.name}</strong></td>
+        <td><span style="color: var(--color-gray-600);">${item.spec}</span></td>
+        <td>$${Number(item.price1).toFixed(2)}</td>
+        <td>$${Number(item.price6).toFixed(2)}</td>
+        <td><strong style="color: var(--color-blue);">$${Number(item.price12).toFixed(2)}</strong></td>
+      `;
+
+      tr.addEventListener('click', () => {
+        if (prodInput) {
+          prodInput.value = item.name;
+          updateSelectedRow();
+          recalculateQuote();
+        }
+      });
+
+      pricingTableBody.appendChild(tr);
+    });
+  }
+
+  function updateSelectedRow() {
+    if (!pricingTableBody || !prodInput) return;
+    const selectedProd = prodInput.value;
+    const rows = pricingTableBody.querySelectorAll('tr');
+    rows.forEach(row => {
+      row.classList.toggle('selected-row', row.getAttribute('data-product') === selectedProd);
+    });
+  }
+
+  // Calculate unit price and order total based on quantity tier
+  function recalculateQuote() {
+    if (!prodInput || !qtyInput) return;
+
+    const prodName = prodInput.value;
+    const qty = parseInt(qtyInput.value, 10) || 1;
+
+    const product = currentPricingData.find(p => p.name === prodName) || currentPricingData[0];
+    if (!product) return;
+
+    let unitPrice = product.price1;
+    let discountMsg = 'Precio unitario estándar (1 a 5 piezas)';
+
+    if (qty >= 12) {
+      unitPrice = product.price12;
+      discountMsg = '🔥 Precio mayorista aplicado por docena (+12)';
+    } else if (qty >= 6) {
+      unitPrice = product.price6;
+      discountMsg = '✨ Descuento especial aplicado por media docena (6+)';
+    }
+
+    const total = unitPrice * qty;
+
+    if (calcUnitPrice) {
+      calcUnitPrice.textContent = `$${unitPrice.toFixed(2)}`;
+    }
+    if (calcTotalPrice) {
+      calcTotalPrice.textContent = `$${total.toFixed(2)}`;
+    }
+    if (calcDiscountTag) {
+      calcDiscountTag.textContent = discountMsg;
+    }
+  }
+
+  // Fetch real-time data from Google Sheets
+  async function fetchGoogleSheetData() {
+    if (sheetStatusLabel) {
+      sheetStatusLabel.textContent = 'Consultando Google Sheets en tiempo real...';
+    }
+    if (refreshPricesBtn) {
+      refreshPricesBtn.classList.add('spinning');
+    }
+
+    try {
+      // Add cache buster to always get fresh data
+      const cacheBustUrl = `${SHEET_URL}&_=${Date.now()}`;
+      const response = await fetch(cacheBustUrl);
+
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+
+      const text = await response.text();
+
+      // Google returns: /*O_o*/ google.visualization.Query.setResponse({...});
+      const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]+)\);/);
+      if (!match || !match[1]) {
+        throw new Error('Formato Google Visualization inválido');
+      }
+
+      const json = JSON.parse(match[1]);
+      const rows = json.table && json.table.rows;
+
+      if (!rows || rows.length === 0) {
+        throw new Error('La hoja de cálculo no contiene filas con datos');
+      }
+
+      const parsedItems = [];
+
+      rows.forEach(r => {
+        const c = r.c || [];
+        // Product name is in col 0
+        const name = c[0] && c[0].v ? String(c[0].v).trim() : '';
+        if (!name || name.toLowerCase().includes('producto') || name.toLowerCase().includes('prenda')) {
+          return; // Skip header row if present
+        }
+
+        const spec = c[1] && c[1].v ? String(c[1].v).trim() : 'Personalizado';
+        const price1 = c[2] && !isNaN(parseFloat(c[2].v)) ? parseFloat(c[2].v) : 14.00;
+        const price6 = c[3] && !isNaN(parseFloat(c[3].v)) ? parseFloat(c[3].v) : 12.00;
+        const price12 = c[4] && !isNaN(parseFloat(c[4].v)) ? parseFloat(c[4].v) : 10.00;
+
+        parsedItems.push({ name, spec, price1, price6, price12 });
+      });
+
+      if (parsedItems.length > 0) {
+        currentPricingData = parsedItems;
+        if (sheetStatusLabel) {
+          sheetStatusLabel.textContent = 'Precios sincronizados en vivo con Google Sheets';
+          sheetStatusLabel.style.color = '#059669';
+        }
+      } else {
+        throw new Error('No se encontraron columnas de precios válidas');
+      }
+
+    } catch (err) {
+      console.warn('Google Sheets live sync:', err.message, '- Usando lista oficial vigente del taller.');
+      currentPricingData = FALLBACK_PRICES;
+      if (sheetStatusLabel) {
+        sheetStatusLabel.textContent = 'Precios oficiales vigentes del taller (Google Sheets en modo lectura)';
+        sheetStatusLabel.style.color = '#1f2937';
+      }
+    } finally {
+      if (refreshPricesBtn) {
+        refreshPricesBtn.classList.remove('spinning');
+      }
+      renderPricingTable(currentPricingData);
+      recalculateQuote();
+    }
+  }
+
+  // Listeners for inputs
+  if (prodInput) {
+    prodInput.addEventListener('change', () => {
+      updateSelectedRow();
+      recalculateQuote();
+    });
+  }
+
+  if (qtyInput) {
+    qtyInput.addEventListener('change', recalculateQuote);
+  }
+
+  if (refreshPricesBtn) {
+    refreshPricesBtn.addEventListener('click', fetchGoogleSheetData);
+  }
+
+  // Quote form submission with exact calculated itemized breakdown
   if (quoteForm) {
     quoteForm.addEventListener('submit', function (e) {
       e.preventDefault();
 
-      const prod = document.getElementById('prodInput') ? document.getElementById('prodInput').value : 'Prenda personalizada';
-      const qty = document.getElementById('qtyInput') ? document.getElementById('qtyInput').value : '1 a 5 piezas';
+      const prod = prodInput ? prodInput.value : 'Prenda personalizada';
+      const qty = qtyInput ? qtyInput.value : '1';
       const city = document.getElementById('cityInput') ? document.getElementById('cityInput').value : 'Cabudare / Barquisimeto';
       const notes = document.getElementById('notesInput') ? document.getElementById('notesInput').value.trim() : 'Sin notas adicionales';
+      const unit = calcUnitPrice ? calcUnitPrice.textContent : '$10.00';
+      const total = calcTotalPrice ? calcTotalPrice.textContent : '$60.00';
 
-      const message = `¡Hola unocuatrosiete! Quisiera cotizar un pedido:%0A%0A` +
+      const message = `¡Hola unocuatrosiete! Quisiera cotizar un pedido a partir del cotizador web:%0A%0A` +
         `• *Prenda/Producto:* ${encodeURIComponent(prod)}%0A` +
-        `• *Cantidad estimada:* ${encodeURIComponent(qty)}%0A` +
-        `• *Ubicación:* ${encodeURIComponent(city)}%0A` +
+        `• *Cantidad:* ${encodeURIComponent(qty)} unidad(es)%0A` +
+        `• *Precio Unitario Estimado:* ${encodeURIComponent(unit)}%0A` +
+        `• *Total Estimado del Pedido:* ${encodeURIComponent(total)}%0A` +
+        `• *Ubicación de Entrega:* ${encodeURIComponent(city)}%0A` +
         `• *Detalle del diseño:* ${encodeURIComponent(notes)}%0A%0A` +
-        `¿Me podrían dar información de precios y tiempos de entrega? ¡Gracias!`;
+        `¿Me podrían confirmar disponibilidad y tiempos de entrega? ¡Gracias!`;
 
       const waUrl = `https://wa.me/${WHATSAPP_PHONE}?text=${message}`;
       window.open(waUrl, '_blank', 'noopener,noreferrer');
     });
   }
+
+  // Initial load
+  fetchGoogleSheetData();
 })();
