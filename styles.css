@@ -301,7 +301,7 @@ ul {
 
 /* Hero Section */
 .hero {
-  padding-top: 3.5rem;
+  padding-top: 3rem;
   padding-bottom: 4.5rem;
   border-bottom: var(--border-light);
 }
@@ -315,8 +315,95 @@ ul {
 
 @media (min-width: 900px) {
   .hero-grid {
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 1.15fr 0.85fr;
     gap: 4rem;
+  }
+}
+
+/* Hero Slide Nav (Tabs) */
+.hero-slide-nav {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+}
+
+.hero-tab-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.35rem 0.25rem 0.6rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  opacity: 0.4;
+  transition: opacity 0.25s ease;
+  min-width: 120px;
+}
+
+.hero-tab-btn:hover {
+  opacity: 0.85;
+}
+
+.hero-tab-btn.active {
+  opacity: 1;
+}
+
+.hero-tab-label {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-black);
+  text-transform: uppercase;
+}
+
+.hero-tab-progress {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--color-gray-200);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero-tab-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--color-black);
+  border-radius: 2px;
+}
+
+.hero-tab-btn.active .hero-tab-fill {
+  width: 100%;
+  transition: width 30s linear;
+}
+
+/* Slide Texts */
+.hero-slide-text {
+  display: none;
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.hero-slide-text.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  animation: heroSlideFade 0.45s ease forwards;
+}
+
+@keyframes heroSlideFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -336,18 +423,18 @@ ul {
 
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 6vw, 4.25rem);
+  font-size: clamp(2.25rem, 5.5vw, 3.75rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.03em;
   color: var(--color-black);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .hero-desc {
-  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  font-size: clamp(0.9375rem, 1.3vw, 1.0625rem);
   color: var(--color-gray-600);
-  line-height: 1.6;
+  line-height: 1.65;
   max-width: 540px;
   margin-bottom: 2.25rem;
 }
@@ -388,27 +475,54 @@ ul {
   line-height: 1.3;
 }
 
-/* Hero Visual */
+/* Hero Carousel Visual */
 .hero-visual {
   position: relative;
+  width: 100%;
+}
+
+.hero-carousel {
+  position: relative;
+  background: var(--color-white);
+  border: var(--border-light);
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.hero-carousel-item {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s ease;
+  z-index: 1;
+}
+
+.hero-carousel-item.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 2;
 }
 
 .hero-image-wrap {
+  width: 100%;
+  height: 100%;
   position: relative;
-  background: var(--color-gray-50);
-  border: var(--border-light);
-  overflow: hidden;
-  aspect-ratio: 1 / 1;
 }
 
 .hero-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
+  object-fit: contain;
+  background-color: #ffffff;
+  padding: 1.25rem;
+  transition: transform 0.6s ease;
 }
 
-.hero-image-wrap:hover .hero-img {
+.hero-carousel-item.active:hover .hero-img {
   transform: scale(1.03);
 }
 
@@ -418,11 +532,13 @@ ul {
   left: 1.25rem;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   padding: 0.75rem 1.25rem;
   border: var(--border-light);
   display: flex;
   flex-direction: column;
   font-size: 0.75rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .hero-tag span {
@@ -435,6 +551,56 @@ ul {
 .hero-tag strong {
   font-size: 0.9375rem;
   color: var(--color-black);
+}
+
+/* Hero Carousel Controls */
+.hero-carousel-controls {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: var(--border-light);
+  padding: 0.35rem 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.hero-ctrl-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  color: var(--color-black);
+  border-radius: 4px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.hero-ctrl-btn:hover {
+  background: var(--color-gray-100);
+  transform: translateY(-1px);
+}
+
+.hero-carousel-counter {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-gray-600);
+  letter-spacing: 0.05em;
+  padding: 0 0.35rem;
+}
+
+.hero-carousel-counter span#heroSlideCurrent {
+  color: var(--color-black);
+  font-weight: 800;
 }
 
 /* Clients Marquee Strip */
